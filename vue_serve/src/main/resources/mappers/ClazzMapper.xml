@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.two.vue_serve.mapper.ClazzMapper">
+        <insert id="addClazz" parameterType="com.two.vue_serve.po.Clazz">
+        insert into clazz(clazzName)
+        values (clazzName=#{clazzName})
+    </insert>
+        <update id="updateClazz" parameterType="com.two.vue_serve.po.Clazz">
+        update clazz
+        set clazzName=#{clazzName}
+        where clazzId=#{clazzId}
+    </update>
+
+        <delete id="deleteClazz" parameterType="com.two.vue_serve.po.Clazz">
+        delete
+        from clazz
+        where clazzId=#{clazzId}
+    </delete>
+        <select id="findAllClazzs" resultType="com.two.vue_serve.po.Clazz">
+        select *
+        from clazz
+    </select>
+<!--    <select id="selectClazzStu" resultType="com.two.vue_serve.po.Clazz">-->
+<!--        select clazz.clazzId,clazz.clazzName,student.loginName-->
+<!--        from clazz,student-->
+<!--        where clazz.clazzId=student.clazzId-->
+<!--    </select>-->
+</mapper>

@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.two.vue_serve.mapper.TeaHomeworkMapper">
+    <resultMap id="teaHomeworkMap" type="com.two.vue_serve.po.TeaUpload">
+        <id property="homeworkId" column="homeworkId"></id>
+        <result property="teacherId" column="teacherId"></result>
+        <result property="date" column="date"></result>
+        <result property="title" column="title"></result>
+        <result property="content" column="content"></result>
+        <result property="answer" column="answer"></result>
+        <association property="teacher" column="teacher">
+            <id property="teacherId" column="teacherId"></id>
+            <result property="loginName" column="loginName"></result>
+            <result property="password" column="password"></result>
+            <result property="phoneNum" column="phoneNum"></result>
+            <result property="type" column="type"></result>
+            <result property="courseId" column="courseId"></result>
+        </association>
+    </resultMap>
+    <resultMap id="stuTeaHomeworkMap" type="com.two.vue_serve.po.TeaUpload">
+        <id property="homeworkId" column="homeworkId"></id>
+        <result property="teacherId" column="teacherId"></result>
+        <result property="date" column="date"></result>
+        <result property="title" column="title"></result>
+        <result property="content" column="content"></result>
+        <association property="teacher" column="teacher">
+            <id property="teacherId" column="teacherId"></id>
+            <result property="loginName" column="loginName"></result>
+            <result property="phoneNum" column="phoneNum"></result>
+            <result property="type" column="type"></result>
+            <result property="courseId" column="courseId"></result>
+        </association>
+        <association property="teacherClazz" column="teacherClazz">
+            <id property="teaNum" column="teaNum"></id>
+            <result property="teacherId" column="teacherId"></result>
+            <result property="clazzId" column="clazzId"></result>
+        </association>
+        <association property="course" column="course">
+            <id property="courseId" column="courseId"></id>
+            <result property="courseName" column="courseName"></result>
+        </association>
+     </resultMap>
+    <insert id="addTeaHomework" parameterType="com.two.vue_serve.po.TeaUpload">
+        insert into tea_upload(teacherId,date,title,content,answer)
+        values (#{teacherId},#{date},#{title},#{content},#{answer})
+    </insert>
+    <update id="updateTeaHomework" parameterType="com.two.vue_serve.po.TeaUpload">
+        update tea_upload
+        set teacherId=#{teacherId},date=#{date},title=#{title},content=#{content}
+        where homeworkId=#{homeworkId}
+    </update>
+    <delete id="deleteTeaHomework" parameterType="com.two.vue_serve.po.TeaUpload">
+        delete
+        from tea_upload
+        where homeworkId=#{homeworkId}
+    </delete>
+    <select id="findAllTeaHomework" resultMap="teaHomeworkMap"
+    parameterType="com.two.vue_serve.po.TeaUpload">
+        select *
+        from tea_upload tu,teacher t
+        where tu.teacherId=t.teacherId
+        <if test="teacherId!=null and teacherId!=''">
+            and tu.teacherId like concat ('%',#{teacherId},'%')
+        </if>
+        <if test="content!=null and content!=''">
+            and content like concat ('%',#{content},'%')
+        </if>
+    </select>
+    <select id="findAllTeacher" resultType="com.two.vue_serve.po.Teacher">
+        select teacherId,loginName
+        from teacher
+    </select>
+    <select id="findByTeacher" resultType="com.two.vue_serve.po.TeaUpload">
+        select *
+        from tea_upload
+        where teacherId=#{teacherId}
+        <if test="title!=null and title!=''">
+            and title like concat ('%',#{title},'%')
+        </if>
+    </select>
+    <select id="findTeaHomeworkByClazzId"
+            resultMap="stuTeaHomeworkMap"
+            parameterType="com.two.vue_serve.po.TeaUpload">
+        select tu.*,t.*,c.*
+        from teacher_clazz tc,teacher t ,course c,tea_upload tu
+        where tc.clazzId=#{clazzId} and tc.teacherId=t.teacherId
+        and tu.teacherId=t.teacherId and t.courseId=c.courseId
+    </select>
+
+</mapper>

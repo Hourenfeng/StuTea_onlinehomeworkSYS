@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.two.vue_serve.mapper.StuHomeworkMapper">
+    <resultMap id="stuHomeworkMap" type="com.two.vue_serve.po.StuUpload">
+        <id property="stuUploadId" column="stuUploadId"></id>
+        <result property="studentId" column="studentId"></result>
+        <result property="loginName" column="loginName"></result>
+        <result property="homeworkId" column="homeworkId"></result>
+        <result property="stuUploadId" column="stuUploadId"></result>
+        <result property="date" column="date"></result>
+        <result property="courseId" column="courseId"></result>
+        <result property="content" column="content"></result>
+        <result property="score" column="score"></result>
+        <result property="submit" column="submit"></result>
+        <result property="correct" column="correct"></result>
+        <association property="student" column="student">
+            <id property="studentId" column="studentId"></id>
+            <result property="loginName" column="loginName"></result>
+            <result property="password" column="password"></result>
+            <result property="clazzId" column="clazzId"></result>
+        </association>
+        <association property="course" column="course">
+            <id property="courseId" column="courseId"></id>
+            <result property="courseName" column="courseName"></result>
+        </association>
+        <association property="teacher" column="teacher">
+            <id property="teacherId" column="teacherId"></id>
+        </association>
+
+    </resultMap>
+    <insert id="addStuHomework" parameterType="com.two.vue_serve.po.StuUpload">
+       insert into stu_upload(loginName,homeworkId,studentId,date,courseId,content,submit)
+       values (#{loginName},#{homeworkId},#{studentId},#{date},#{courseId},#{content},#{submit})
+    </insert>
+    <update id="updateStuHomework" parameterType="com.two.vue_serve.po.StuUpload">
+        update stu_upload
+        set loginName=#{loginName},content=#{content},score=#{score},correct=#{correct}
+        where stuUploadId=#{stuUploadId}
+    </update>
+    <update id="upDateSubmit" parameterType="string">
+        update stu_upload
+        set submit=#{newsubmit}
+        where stuUploadId=#{stuUploadId}
+    </update>
+    <update id="WriteAgain" parameterType="string">
+        update stu_upload
+        set submit=#{newsubmit}
+        where homeworkId=#{homeworkId} and studentId=#{studentId}
+    </update>
+    <delete id="deleteStuHomework" parameterType="com.two.vue_serve.po.StuUpload">
+        delete
+        from stu_upload
+        where stuUploadId=#{stuUploadId}
+    </delete>
+
+
+    <select id="findAllStuHomework" resultMap="stuHomeworkMap"
+    parameterType="com.two.vue_serve.po.StuUpload">
+        select *
+        from stu_upload su,tea_upload tu,student s,course c
+        where su.studentId=s.studentId and
+        su.courseId=c.courseId and su.homeworkId = tu.homeworkId
+        <if test="studentId!=null and studentId!=''">
+            and su.studentId like concat ('%',#{studentId},'%')
+        </if>
+        <if test="courseId!=null and courseId!=''">
+            and su.courseId like concat ('%',#{courseId},'%')
+        </if>
+    </select>
+    <select id="findAllByHomeworkId"
+    resultType="com.two.vue_serve.po.StuUpload"
+            parameterType="com.two.vue_serve.po.StuUpload">
+        select a.stuUploadId,a.loginName,a.content,a.date,sum(a.score) score,sum(a.submit) submit,sum(a.correct) correct,a.courseName
+        from
+        (select stuUploadId,student.loginName,content,date,score,submit,correct,courseName
+        from student,stu_upload,course
+        where stu_upload.studentId=student.studentId and stu_upload.homeworkId=#{homeworkId} and course.courseId=stu_upload.courseId
+        union
+        select 0 as stuUploadId,student.loginName,NULL as content,NULL as date,0 as score,0 as submit,0 as correct,course.courseName
+        from student,teacher,teacher_clazz,course
+        where student.clazzId=teacher_clazz.clazzId and teacher_clazz.teacherId=teacher.teacherId and teacher.teacherId=#{teacherId} and teacher.courseId=course.courseId) a
+        group by a.loginName
+    </select>
+    <select id="findByHomeworkIdByState" resultType="com.two.vue_serve.po.StuUpload" parameterType="com.two.vue_serve.po.StuUpload">
+--         加一个correct
+        select b.loginName,b.content,b.date,b.score,b.courseName,b.submit,b.correct
+        from
+        (select a.loginName,a.content,a.date,sum(a.score) score,sum(a.submit) submit,sum(a.correct) correct,a.courseName
+        from
+        (select student.loginName,content,date,score,submit,correct,courseName
+        from student,stu_upload,course
+        where stu_upload.studentId=student.studentId and stu_upload.homeworkId=#{homeworkId} and course.courseId=stu_upload.courseId
+        union
+        select student.loginName,NULL as content,NULL as date,0 as score,0 as submit,0 as correct,course.courseName
+        from student,teacher,teacher_clazz,course
+
+        where student.clazzId=teacher_clazz.clazzId and teacher_clazz.teacherId=teacher.teacherId and teacher.teacherId=#{teacherId} and teacher.courseId=course.courseId) a
+        group by a.loginName) b
+        where b.submit=#{submit}
+    </select>
+    <select id="findSubmitByStudentId" resultType="java.lang.String">
+        select submit
+        from stu_upload
+        where studentId=#{studentId} and homeworkId=#{homeworkId}
+    </select>
+    <select id="findTeaRemind" resultType="com.two.vue_serve.po.StuUpload" resultMap="stuHomeworkMap">
+        select student.loginName,stu_upload.date,stu_upload.content,stu_upload.stuUploadId
+        from teacher,stu_upload,student
+        where teacher.teacherId=#{teacherId} and  teacher.courseId=stu_upload.courseId
+        and student.studentId=stu_upload.studentId and stu_upload.submit=2
+    </select>
+
+</mapper>

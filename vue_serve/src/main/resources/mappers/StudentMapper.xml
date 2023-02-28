@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.two.vue_serve.mapper.StudentMapper">
+    <resultMap id="student" type="com.two.vue_serve.po.Student">
+        <id property="studentId" column="studentId"></id>
+        <result property="loginName" column="loginName"></result>
+        <result property="password" column="password"></result>
+        <result property="clazzId" column="clazzId"></result>
+        <result property="phoneNum" column="phoneNum"></result>
+        <association property="clazz" javaType="com.two.vue_serve.po.Clazz">
+            <id property="clazzId" column="clazzId"></id>
+            <result property="clazzName" column="clazzName"></result>
+        </association>
+        <association property="teacherClazz" javaType="com.two.vue_serve.po.TeacherClazz">
+            <id property="teacherId" column="teacherId"></id>
+            <result property="clazzId" column="clazzId"></result>
+        </association>
+        <association property="school" javaType="com.two.vue_serve.po.School">
+            <id property="schoolId" column="schoolId"></id>
+            <result property="schoolName" column="schoolName"></result>
+        </association>
+        <association property="teacher" javaType="com.two.vue_serve.po.Teacher">
+            <id property="teacherId" column="teacherId"></id>
+            <result property="loginName" column="loginName"></result>
+        </association>
+    </resultMap>
+    <insert id="addStudent" parameterType="com.two.vue_serve.po.Student">
+        insert into student(loginName,password,clazzId,phoneNum)
+        values (#{loginName},#{password},#{clazzId},#{phoneNum})
+    </insert>
+    <update id="updateStudent" parameterType="com.two.vue_serve.po.Student">
+        update student
+        set loginName=#{loginName},password=#{password},
+        clazzId=#{clazzId},phoneNum=#{phoneNum}
+        where studentId=#{studentId}
+    </update>
+    <update id="editPwd" parameterType="string">
+        update student
+        set password=#{npwd}
+        where studentId=#{studentId} and password=#{opwd}
+    </update>
+    <delete id="deleteStudent" parameterType="com.two.vue_serve.po.Student">
+        delete from student
+        where studentId=#{studentId}
+    </delete>
+
+
+    <select id="findAllStudent" resultMap="student"
+    parameterType="com.two.vue_serve.po.Student">
+        select * from student s,clazz c
+        where s.clazzId=c.clazzId
+        <if test="loginName!=null and loginName!=''">
+            and loginName like concat ('%',#{loginName},'%')
+        </if>
+        <if test="clazzId!=null and clazzId!=''">
+            and s.clazzId like concat ('%',#{clazzId},'%')
+        </if>
+        <if test="phoneNum!=null and phoneNum!=''">
+        and phoneNum like concat('%',#{phoneNum},'%')
+    </if>
+    </select>
+    <select id="findAllClazz" resultType="com.two.vue_serve.po.Clazz">
+        select * from clazz
+    </select>
+    <select id="login" resultType="com.two.vue_serve.po.Student">
+        select  *
+        from student
+        where loginName=#{loginName}
+        and password=#{password}
+    </select>
+    <select id="studentInfo" resultType="com.two.vue_serve.po.Student" resultMap="student">
+        select student.loginName,school.schoolName,clazz.clazzName,teacher.loginName
+        from student,school,clazz,teacher,teacher_Clazz
+        where student.schoolId=school.schoolId
+        and clazz.clazzId=student.clazzId
+        and teacher.teacherId=teacher_Clazz.teacherId
+        and student.clazzId=teacher_Clazz.clazzId
+        and studentId=#{studentId}
+    </select>
+<select id="findAllStuHomework" resultType="com.two.vue_serve.po.StuUpload" parameterType="com.two.vue_serve.po.Student">
+        select student.loginName,clazz.clazzName,tea_upload.title,stu_upload.score
+        from student,stu_upload,tea_upload,clazz
+        where student.studentId=stu_upload.studentId and stu_upload.homeworkId=tea_upload.homeworkId
+        and student.loginName=#{loginName} and student.clazzId=clazz.clazzName
+    </select>
+</mapper>

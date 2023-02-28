@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.two.vue_serve.mapper.TeacherMapper">
+    <resultMap id="teacherMap" type="com.two.vue_serve.po.Teacher">
+        <id column="teacherId" property="teacherId"></id>
+        <result property="loginName" column="loginName"></result>
+        <result property="password" column="password"></result>
+        <result property="phoneNum" column="phoneNum"></result>
+        <result property="type" column="type"></result>
+        <result property="courseId" column="courseId"></result>
+        <association property="course" javaType="com.two.vue_serve.po.Course">
+            <id property="courseId" column="id"></id>
+            <result property="courseName" column="courseName"></result>
+        </association>
+        <association property="teacherClazz" javaType="com.two.vue_serve.po.TeacherClazz">
+            <id property="teacherId" column="teacherId"></id>
+            <result property="clazzId" column="clazzId"></result>
+        </association>
+        <association property="clazz" javaType="com.two.vue_serve.po.Clazz">
+            <id property="clazzId" column="clazzId"></id>
+            <result property="clazzName" column="clazzName"></result>
+        </association>
+    </resultMap>
+    <insert id="addTeacher" parameterType="com.two.vue_serve.po.Teacher">
+insert into teacher(loginName,password,type,courseId,phoneNum)
+values (#{loginName},#{password},#{type},#{courseId},#{phoneNum})
+    </insert>
+    <insert id="addClaStu" parameterType="com.two.vue_serve.po.Teacher">
+        update student
+        set clazzId=#{clazzId}
+        where loginName=#{stuloginName}
+    </insert>
+    <update id="updateTeacher" parameterType="com.two.vue_serve.po.Teacher">
+        update teacher set
+        loginName=#{loginName},password=#{password},type=#{type},
+        courseId=#{courseId},phoneNum=#{phoneNum}
+        where teacherId=#{teacherId}
+    </update>
+    <update id="editPwd" parameterType="string">
+        update teacher
+        set password=#{npwd}
+        where teacherId=#{teacherId} and password=#{opwd}
+    </update>
+    <delete id="deleteByTeacherId" parameterType="com.two.vue_serve.po.Teacher">
+        delete from teacher where teacherId=#{teacherId}
+    </delete>
+    <select id="findAllTeacher"
+            resultMap="teacherMap"
+            parameterType="com.two.vue_serve.po.Teacher">
+        select t.*,c.courseName
+        from teacher t,course c
+        where t.courseId=c.courseId
+        <if test="loginName!=null and loginName!=''">
+            and loginName like concat('%',#{loginName},'%')
+        </if>
+        <if test="courseId!=null and courseId!=''">
+            and t.courseId like concat('%',#{courseId},'%')
+        </if>
+        <if test="phoneNum!=null and phoneNum!=''">
+            and phoneNum like concat ('%',#{phoneNum},'%')
+        </if>
+    </select>
+    <select id="findByTeacherId" resultType="com.two.vue_serve.po.Teacher">
+        select *
+        from teacher
+        where teacherId=#{teacherId}
+    </select>
+    <select id="findAllCourse" resultType="com.two.vue_serve.po.Course">
+        select * from course
+    </select>
+    <select id="login" resultType="com.two.vue_serve.po.Teacher">
+        select *
+        from teacher
+        where loginName=#{loginName}
+        and password=#{password}
+    </select>
+
+    <select id="findAllTeaClazzs" resultType="com.two.vue_serve.po.Clazz" parameterType="com.two.vue_serve.po.Teacher">
+        select c.clazzName,c.clazzId,count(studentId) clazzStuNum
+        from teacher_clazz tc,clazz c,teacher t,student s
+        where tc.clazzId=c.clazzId and t.teacherId=tc.teacherId and s.clazzId=c.clazzId and t.teacherId=#{teacherId}
+        group by c.clazzId
+    </select>
+    <select id="findAllTeaClaStu" resultType="com.two.vue_serve.po.Student" parameterType="com.two.vue_serve.po.Teacher">
+        select loginName,sum(hwNum) hwNum from
+            (select s.loginName,0 as hwNum
+            from teacher_clazz tc,clazz c,teacher t,student s
+            where tc.clazzId=c.clazzId and t.teacherId=tc.teacherId
+            and s.clazzId=c.clazzId and t.teacherId=#{teacherId} and tc.clazzId=#{clazzId}
+            group by s.loginName
+            union
+            select s.loginName,count(sup.homeworkId)as hwNum
+            from stu_upload sup,teacher_clazz tc,clazz c,teacher t,student s
+            where tc.clazzId=c.clazzId and t.teacherId=tc.teacherId
+            and s.clazzId=c.clazzId and t.teacherId=#{teacherId} and tc.clazzId=#{clazzId}
+            and sup.studentId=s.studentId
+            group by s.loginName)a
+        group by a.loginName
+    </select>
+    <select id="findClazzByParam" resultType="com.two.vue_serve.po.Clazz" parameterType="com.two.vue_serve.po.Teacher">
+        select c.clazzName,c.clazzId,count(studentId) clazzStuNum
+        from teacher_clazz tc,clazz c,teacher t,student s
+        where tc.clazzId=c.clazzId and t.teacherId=tc.teacherId and s.clazzId=c.clazzId and t.teacherId=#{teacherId} and c.clazzName=#{clazzName}
+    </select>
+    <select id="findClaStuByParam" resultType="com.two.vue_serve.po.Student" parameterType="com.two.vue_serve.po.Teacher">
+        select loginName,sum(hwNum) hwNum from
+            (select s.loginName,0 as hwNum
+            from teacher_clazz tc,clazz c,teacher t,student s
+            where tc.clazzId=c.clazzId and t.teacherId=tc.teacherId
+            and s.clazzId=c.clazzId and t.teacherId=#{teacherId} and tc.clazzId=#{clazzId}
+            group by s.loginName
+            union
+            select s.loginName,count(sup.homeworkId)as hwNum
+            from stu_upload sup,teacher_clazz tc,clazz c,teacher t,student s
+            where tc.clazzId=c.clazzId and t.teacherId=tc.teacherId
+            and s.clazzId=c.clazzId and t.teacherId=#{teacherId} and tc.clazzId=#{clazzId}
+            and sup.studentId=s.studentId
+            group by s.loginName)a
+        where a.loginName=#{stuloginName}
+        group by a.loginName
+    </select>
+    <select id="teacherInfo" resultMap="teacherMap"
+            parameterType="com.two.vue_serve.po.Teacher">
+        select t.loginName,t.phoneNum,c.courseName,z.clazzName
+        from teacher t,course c,clazz z,teacher_clazz tc
+        where t.teacherId=tc.teacherId and tc.clazzId = z.clazzId
+        and c.courseId = t.courseId and t.teacherId=#{teacherId}
+    </select>
+</mapper>

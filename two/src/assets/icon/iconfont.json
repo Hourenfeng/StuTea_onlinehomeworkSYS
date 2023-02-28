@@ -1,0 +1,79 @@
+{
+  "id": "3426929",
+  "name": "two",
+  "font_family": "iconfont",
+  "css_prefix_text": "el-icon-zz",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "1727379",
+      "name": "33资源-线性",
+      "font_class": "ziyuan-xianxing",
+      "unicode": "e8a4",
+      "unicode_decimal": 59556
+    },
+    {
+      "icon_id": "4512447",
+      "name": "手动标注",
+      "font_class": "shoudongbiaozhu",
+      "unicode": "e64e",
+      "unicode_decimal": 58958
+    },
+    {
+      "icon_id": "5571235",
+      "name": "关爱服务",
+      "font_class": "icon-test",
+      "unicode": "e61e",
+      "unicode_decimal": 58910
+    },
+    {
+      "icon_id": "7991694",
+      "name": "自动贩卖机",
+      "font_class": "zidongfanmaiji",
+      "unicode": "e66c",
+      "unicode_decimal": 58988
+    },
+    {
+      "icon_id": "8023423",
+      "name": "作业",
+      "font_class": "zuoye",
+      "unicode": "e60f",
+      "unicode_decimal": 58895
+    },
+    {
+      "icon_id": "8817342",
+      "name": "数据分析",
+      "font_class": "shujufenxi",
+      "unicode": "e602",
+      "unicode_decimal": 58882
+    },
+    {
+      "icon_id": "9495490",
+      "name": "班级",
+      "font_class": "banji",
+      "unicode": "e629",
+      "unicode_decimal": 58921
+    },
+    {
+      "icon_id": "17853803",
+      "name": "重新生成",
+      "font_class": "zhongxinshengcheng",
+      "unicode": "e625",
+      "unicode_decimal": 58917
+    },
+    {
+      "icon_id": "1301",
+      "name": "应用",
+      "font_class": "yingyong",
+      "unicode": "e601",
+      "unicode_decimal": 58881
+    },
+    {
+      "icon_id": "27078537",
+      "name": "老师",
+      "font_class": "laoshi",
+      "unicode": "e600",
+      "unicode_decimal": 58880
+    }
+  ]
+}

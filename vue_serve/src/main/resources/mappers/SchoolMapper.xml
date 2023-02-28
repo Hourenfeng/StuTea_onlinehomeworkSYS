@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.two.vue_serve.mapper.SchoolMapper">
+    <insert id="addSchool" parameterType="com.two.vue_serve.po.School">
+        insert into school(schoolName)
+        values(#{schoolName})
+    </insert>
+    <update id="updateSchool" parameterType="com.two.vue_serve.po.School">
+        update school
+        set schoolName=#{schoolName}
+        where schoolId=#{schoolId}
+    </update>
+    <delete id="deleteSchool" parameterType="com.two.vue_serve.po.School">
+        delete from school
+        where schoolId=#{schoolId}
+    </delete>
+    <select id="findAllSchools" resultType="com.two.vue_serve.po.School">
+        select * from school
+        <if test="schoolName!=null and schoolName!=''">
+            where schoolName like concat('%',#{schoolName},'%')
+        </if>
+    </select>
+</mapper>

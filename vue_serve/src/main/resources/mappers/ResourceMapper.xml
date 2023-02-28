@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.two.vue_serve.mapper.ResourceMapper">
+    <resultMap id="resourceMap" type="com.two.vue_serve.po.Resource">
+        <id property="resourceId" column="resourceId"></id>
+        <result property="teacherId" column="teacherId"></result>
+        <result property="date" column="date"></result>
+        <result property="resource" column="resource"></result>
+        <result property="url" column="url"></result>
+        <association property="teacher" column="teacher">
+            <id property="teacherId" column="teacherId"></id>
+            <result property="loginName" column="loginName"></result>
+            <result property="password" column="password"></result>
+            <result property="phoneNum" column="phoneNum"></result>
+            <result property="type" column="type"></result>
+            <result property="courseId" column="courseId"></result>
+        </association>
+        <association property="course" column="course">
+            <id property="courseId" column="courseId"></id>
+            <result property="courseName" column="courseName"></result>
+        </association>
+    </resultMap>
+    <resultMap id="stuTeacherResources" type="com.two.vue_serve.po.Resource">
+        <id property="resourceId" column="resourceId"></id>
+        <result property="teacherId" column="teacherId"></result>
+        <result property="date" column="date"></result>
+        <result property="resource" column="resource"></result>
+        <result property="url" column="url"></result>
+        <association property="teacher" column="teacher">
+            <id property="teacherId" column="teacherId"></id>
+            <result property="courseId" column="courseId"></result>
+            <result property="loginName" column="loginName"></result>
+        </association>
+        <association property="course" column="course">
+            <id property="courseId" column="courseId"></id>
+            <result property="courseName" column="courseName"></result>
+        </association>
+        <association property="teacherClazz" column="teacherClazz">
+            <id property="teaNum" column="teaNum"></id>
+            <result property="teacherId" column="teacherId"></result>
+            <result property="clazzId" column="clazzId"></result>
+        </association>
+    </resultMap>
+    <insert id="addResource" parameterType="com.two.vue_serve.po.Resource">
+        insert into resource(teacherId,date,resource,url)
+        values (#{teacherId},#{date},#{resource},#{url})
+    </insert>
+    <update id="updateResource" parameterType="com.two.vue_serve.po.Resource">
+        update resource
+        set teacherId=#{teacherId},date=#{date},resource=#{resource}
+        where resourceId=#{resourceId}
+    </update>
+    <delete id="deleteResource" parameterType="com.two.vue_serve.po.Resource">
+        delete from resource
+        where resourceId=#{resourceId}
+    </delete>
+    <select id="findAllResources" resultMap="resourceMap"
+    parameterType="com.two.vue_serve.po.Resource">
+        select *
+        from resource r,teacher t,course c
+        where r.teacherId=t.teacherId and t.courseId=c.courseId
+        <if test="teacherId != null and teacherId!=''">
+            and r.teacherId like concat ('%',#{teacherId},'%')
+        </if>
+        <if test="resource!=null and resource!=''">
+            and resource like concat ('%',#{resource},'%')
+        </if>
+    </select>
+    <select id="findAllTeacher" resultType="com.two.vue_serve.po.Teacher">
+        select teacherId,loginName
+        from teacher
+    </select>
+    <select id="findByClazzId" resultMap="resourceMap"
+            parameterType="com.two.vue_serve.po.Resource">
+        select r.*,c.*
+        from resource r,teacher t,teacher_clazz tc,student s,course c
+        where s.clazzId=tc.clazzId and t.teacherId=tc.teacherId
+        and r.teacherId=t.teacherId and c.courseId=t.courseId
+        and r.teacherId=#{teacherId}
+    </select>
+    <select id="findStuResourcesByClazzId" resultMap="stuTeacherResources"
+            parameterType="com.two.vue_serve.po.Resource">
+        select r.*,c.*,t.*
+        from resource r,teacher t,teacher_clazz tc,course c
+        where tc.clazzId=#{clazzId} and tc.teacherId = t.teacherId
+        and r.teacherId = t.teacherId and c.courseId=t.courseId
+        <if test="resource != null and resource!=''">
+            and r.resource like concat ('%',#{resource},'%')
+        </if>
+        <if test="courseId != null and courseId!=''">
+        and t.courseId like concat ('%',#{courseId},'%')
+        </if>
+    </select>
+</mapper>
